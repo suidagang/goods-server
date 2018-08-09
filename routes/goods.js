@@ -22,7 +22,28 @@ mongoose.connection.on('disconnected',function(){
 });
 
 router.get("/",function(req,res,next){
-    Goods.find({},function(err,doc){
+    let page = parseInt(req.query.page);
+    let pageSize = parseInt(req.query.pageSize);
+    let sorts = parseInt(req.query.sort);
+    let priceStart = req.query.priceStart;
+    let priceEnd = req.query.priceEnd;
+    let params = {};
+    if(priceStart != '' && priceStart != null){
+        params = {
+            salePrice:{
+                $gt:parseInt(priceStart),
+                $lte:parseInt(priceEnd)
+            }
+        }
+    };
+    //分页
+    let skip = (page-1)*pageSize;
+
+    let goodsModel =  Goods.find(params).skip(skip).limit(pageSize);
+    //sort排序
+    goodsModel.sort({"salePrice":sorts});
+
+    goodsModel.exec(function(err,doc){
         if(err){
             res.json({
                 status:"1",
