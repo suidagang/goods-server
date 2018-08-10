@@ -20,7 +20,7 @@ mongoose.connection.on('error',function(){
 mongoose.connection.on('disconnected',function(){
     console.log("MongoDB connected disconnected.")
 });
-
+//查询商品数据列表
 router.get("/",function(req,res,next){
     let page = parseInt(req.query.page);
     let pageSize = parseInt(req.query.pageSize);
@@ -61,6 +61,95 @@ router.get("/",function(req,res,next){
         }
     })
 });
+//加入到购物车
+router.post("/addCart",function(req,res,next){
+    var userId = '100000077',productId = req.body.productId;
+    var User = require('../models/user');
+
+    //findOne只查找一条数据
+    User.findOne({"userId":userId}, function (err,userDoc) {
+        if(err){
+            res.json({
+                status:"1",
+                msg:err.message
+            })
+        }else{
+            //如果有数据
+            if(userDoc){
+                //用来判断原来购物车是否有新加的商品，如果有数量+1
+                let goodsItem = "";
+                userDoc.cartList.forEach(function(item){
+                    if(item.productId == productId){
+                        goodsItem = item;
+                        console.log(item.productNum);
+                        item.productNum++;
+                    }
+                });
+                //如果有新加的商品
+                if(goodsItem){
+                    //直接保存数据
+                    userDoc.save(function (err1,doc1) {
+                        if(err1){
+                            res.json({
+                                status:"1",
+                                msg:err1.message
+                            })
+                        }else{
+                            res.json({
+                                status:"0",
+                                msg:'',
+                                result:'success'
+                            })
+                        }
+                    })
+                //如果没有新加的商品
+                }else{
+                    Goods.findOne({"productId":productId}, function (err,doc) {
+                        if(err){
+                            res.json({
+                                status:"1",
+                                msg:err.message
+                            })
+                        }else{
+                            //如果查到商品列表有商品,保存到user.cartList数据中
+                            if(doc){
+                                doc.productNum = 1;
+                                doc.checked = 1;
+                                userDoc.cartList.push(doc);
+                                userDoc.save(function (err1,doc1) {
+                                    if(err1){
+                                        res.json({
+                                            status:"1",
+                                            msg:err1.message
+                                        })
+                                    }else{
+                                        res.json({
+                                            status:"0",
+                                            msg:'',
+                                            result:'success'
+                                        })
+                                    }
+                                })
+                            }else{
+                                res.json({
+                                    status:"1",
+                                    msg:'没有此商品',
+                                    result:'error'
+                                })
+                            }
+                        }
+                    })
+                }
+            }else{
+                res.json({
+                    status:"0",
+                    msg:'',
+                    result:[]
+                })
+            }
+        }
+    });
+})
 
 
 module.exports = router;
