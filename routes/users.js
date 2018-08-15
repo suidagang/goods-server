@@ -1,9 +1,77 @@
 var express = require('express');
 var router = express.Router();
+var User = require("../models/user");
 
-/* GET users listing. */
-router.get('/', function(req, res, next) {
-  res.send('respond with a resource');
+//登录
+router.post('/login', function(req, res, next) {
+    var userName = req.body.userName,userPwd = req.body.userPwd;
+    User.findOne({"userName":userName,"userPwd":userPwd},function(err,doc){
+        if(err){
+            res.json({
+                status:"1",
+                msg:err.message,
+                result:''
+            })
+        }else{
+            if(doc){
+                res.cookie("userId",doc.userId,{
+                    path:'/',
+                    maxAge:1000*60*60
+                });
+                res.cookie("userName",doc.userName,{
+                    path:'/',
+                    maxAge:1000*60*60
+                });
+                res.json({
+                    status:'0',
+                    msg:'',
+                    result:{
+                        userName:doc.userName
+                    }
+                });
+            }else{
+                res.json({
+                    status:"1001",
+                    msg:'账号密码错误',
+                    result:''
+                })
+            }
+
+        }
+    })
+});
+
+//登出
+router.get("/logout",function(req,res,next){
+    res.cookie("userId","",{
+        path:"/",
+        maxAge:-1
+    });
+    res.cookie("userName","",{
+        path:'/',
+        maxAge:-1
+    });
+    res.json({
+        status:"0",
+        msg:'',
+        result:''
+    })
+});
+//检查是否登录
+router.get("/checkLogin", function (req,res,next) {
+    if(req.cookies.userId){
+        res.json({
+            status:'0',
+            msg:'',
+            result:req.cookies.userName || ''
+        });
+    }else{
+        res.json({
+            status:'1',
+            msg:'未登录',
+            result:''
+        });
+    }
 });
 
 module.exports = router;
