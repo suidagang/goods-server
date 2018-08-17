@@ -8,7 +8,7 @@ var userSchema = new mongoose.Schema({
     "cartList":[
         {
             "productId":String,
-            "ProductName":String,
+            "productName":String,
             "salePrice":String,
             "productImage":String,
             "checked":String,

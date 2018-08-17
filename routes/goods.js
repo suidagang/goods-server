@@ -113,9 +113,14 @@ router.post("/addCart",function(req,res,next){
                         }else{
                             //如果查到商品列表有商品,保存到user.cartList数据中
                             if(doc){
-                                doc.productNum = 1;
-                                doc.checked = 1;
-                                userDoc.cartList.push(doc);
+                                userDoc.cartList.push({
+                                    "productId":doc.productId,
+                                    "productName":doc.productName,
+                                    "salePrice":doc.salePrice,
+                                    "productImage":doc.productImage,
+                                    "checked":'1',
+                                    "productNum":'1'
+                                });
                                 userDoc.save(function (err1,doc1) {
                                     if(err1){
                                         res.json({
