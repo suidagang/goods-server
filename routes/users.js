@@ -96,5 +96,98 @@ router.get("/cartList", function (req,res,next) {
     });
 });
 
+//修改商品数量
+router.post("/editCart", function (req,res,next) {
+    var userId = req.cookies.userId,
+        productId = req.body.productId,
+        productNum = req.body.productNum,
+        checked = req.body.checked;
+    User.update({"userId":userId,"cartList.productId":productId},{
+        "cartList.$.productNum":productNum,
+        "cartList.$.checked":checked
+    }, function (err,doc) {
+        if(err){
+            res.json({
+                status:'1',
+                msg:err.message,
+                result:''
+            });
+        }else{
+            res.json({
+                status:'0',
+                msg:'',
+                result:'success'
+            });
+        }
+    })
+
+});
+
+//删除购物车某条数据
+router.post("/delCart",function(req,res,next){
+    var userId = req.cookies.userId,
+        productId = req.body.productId;
+    User.update({"userId":userId},{
+        $pull:{
+            "cartList":{
+                "productId":productId
+            }
+        }
+    },function(err,doc){
+        if(err){
+            res.json({
+                status:'1',
+                msg:err.message,
+                result:''
+            });
+        }else{
+            res.json({
+                status:'0',
+                msg:'',
+                result:'success'
+            });
+        }
+    })
+
+});
+
+//全选功能
+router.post("/checkAll",function(req,res,next){
+    var userId = req.cookies.userId,
+        checkAll = req.body.checkAll;
+    User.findOne({"userId":userId},function(err,user){
+        if(err){
+            res.json({
+                status:'1',
+                msg:err.message,
+                result:''
+            });
+        }else{
+            if(user){
+                user.cartList.forEach((item)=>{
+                    item.checked = checkAll;
+                });
+                user.save(function(err1,doc){
+                    if(err1){
+                        res.json({
+                            status:'1',
+                            msg:err1.message,
+                            result:''
+                        });
+                    }else{
+                        res.json({
+                            status:'0',
+                            msg:'',
+                            result:'success'
+                        });
+                    }
+                })
+            }else{
+                console.log("错误")
+            }
+        }
+    })
+})
+
 
 module.exports = router;

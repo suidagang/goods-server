@@ -21,7 +21,7 @@ mongoose.connection.on('disconnected',function(){
     console.log("MongoDB connected disconnected.")
 });
 //查询商品数据列表
-router.get("/",function(req,res,next){
+router.get("/list",function(req,res,next){
     let page = parseInt(req.query.page);
     let pageSize = parseInt(req.query.pageSize);
     let sorts = parseInt(req.query.sort);

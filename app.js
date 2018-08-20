@@ -30,6 +30,23 @@ app.use('/', indexRouter);
 app.use('/users', usersRouter);
 app.use('/goods', goodsRouter);
 
+//设置登录白名单
+app.use(function (req,res,next) {
+  if(req.cookies.userId){
+    next();
+  }else{
+    console.log("url:"+req.originalUrl);
+    if(req.originalUrl=='/users/login' || req.originalUrl=='/users/logout' || req.originalUrl.indexOf('/goods/list')>-1){
+      next();
+    }else{
+      res.json({
+        status:'10001',
+        msg:'当前未登录',
+        result:''
+      });
+    }
+  }
+});
 // catch 404 and forward to error handler
 app.use(function(req, res, next) {
   next(createError(404));
