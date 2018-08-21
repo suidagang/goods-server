@@ -81,7 +81,6 @@ router.post("/addCart",function(req,res,next){
                 userDoc.cartList.forEach(function(item){
                     if(item.productId == productId){
                         goodsItem = item;
-                        console.log(item.productNum);
                         item.productNum++;
                     }
                 });
